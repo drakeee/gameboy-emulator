@@ -6,5 +6,9 @@
 #include <iostream>
 
 #include <Cartridge.h>
+#include <Memory.h>
+#include <CPU.h>
+#include <Graphics.h>
+#include <Emulator.h>
 
 // TODO: Reference additional headers your program requires here.

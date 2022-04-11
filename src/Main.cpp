@@ -181,6 +181,26 @@ void renderGameWindow(GameBoy::Cartridge* cartridge)
 
 int main(int argNum, char** args)
 {
+	GameBoy::CPU::RegisterPair BC;
+	BC = 256;
+
+	printf("BC: %04X\n", BC.GetValue());
+	printf("BC: %02X\n", BC.msb);
+	printf("BC: %02X\n", BC.lsb);
+
+	BC.msb = 10;
+	BC.lsb = 20;
+
+	printf("BC: %04X\n", BC.GetValue());
+	printf("BC: %02X\n", BC.msb);
+	printf("BC: %02X\n", BC.lsb);
+
+	BC = 65535;
+
+	printf("BC: %04X\n", BC.GetValue());
+	printf("BC: %02X\n", BC.msb);
+	printf("BC: %02X\n", BC.lsb);
+
 	std::setlocale(LC_ALL, "hu_HU.utf8");
 	GameBoy::Cartridge* cartridge = new GameBoy::Cartridge("./Pokemon - Blue Version (USA, Europe) (SGB Enhanced).gb");
 
