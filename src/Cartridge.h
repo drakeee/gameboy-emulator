@@ -73,7 +73,8 @@ namespace GameBoy
 	{
 		uint8_t entryPoint[4];
 		uint8_t nintendoLogo[48];
-		uint8_t title[15];
+		uint8_t title[11];
+		uint8_t manufactureCode[4];
 		uint8_t cgbFlag;
 		uint8_t newLicenseeCode[2];
 		uint8_t sgbFlag;
@@ -93,9 +94,20 @@ namespace GameBoy
 		Cartridge(const char* filePath);
 		~Cartridge();
 
+		std::string GetFilePath(void);
+		std::string GetFileName(void);
+
+		CartridgeHeader& GetHeader(void) { return this->header; }
+		std::string GetType(void);
+		std::string GetRAMSize(void);
+		std::string GetROMSize(void);
+		std::string GetOldLicensee(void);
+		std::string GetNewLicensee(void);
+
 	private:
 		void ReadHeader(void);
 
+		std::string filePath{ "" };
 		FILE* cartridge = nullptr;
 		CartridgeHeader header;
 
