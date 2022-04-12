@@ -81,6 +81,8 @@ namespace GameBoy
 		~CPU();
 
 	private:
+		void ProcessInstruction();
+
 		Memory* memory = nullptr;
 
 		//Register pairs

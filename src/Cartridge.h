@@ -94,6 +94,8 @@ namespace GameBoy
 		Cartridge(const char* filePath);
 		~Cartridge();
 
+		FILE* GetFile(void);
+		uint32_t GetFileSize(void);
 		std::string GetFilePath(void);
 		std::string GetFileName(void);
 

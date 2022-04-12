@@ -7,7 +7,8 @@ namespace GameBoy
 	class Emulator
 	{
 	public:
-		Emulator();
+		Emulator(const char* filePath);
+		Emulator(const std::string& filePath);
 		~Emulator();
 
 		CPU* cpu = nullptr;

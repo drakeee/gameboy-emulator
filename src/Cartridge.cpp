@@ -52,6 +52,16 @@ void Cartridge::ReadHeader()
 	printf("%02X\n", this->header.destinationCode);
 }
 
+FILE* Cartridge::GetFile(void)
+{
+	return this->cartridge;
+}
+
+uint32_t Cartridge::GetFileSize(void)
+{
+	return this->cartridgeFileSize;
+}
+
 std::string Cartridge::GetFilePath(void)
 {
 #ifdef _WIN32
