@@ -21,8 +21,6 @@ Emulator::Emulator(const char* filePath)
 	this->memory = new Memory(this->cartridge);
 	this->graphics = new Graphics();
 	this->cpu = new CPU(this->memory);
-
-	this->memory->Read();
 }
 
 Emulator::~Emulator()

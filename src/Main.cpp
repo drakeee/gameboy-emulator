@@ -22,25 +22,43 @@ static int nintendoHeight = 8;
 
 void renderMenu()
 {
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 7));
+
 	if(ImGui::BeginMainMenuBar())
 	{
+		//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 10));
 		if (ImGui::BeginMenu("File"))
 		{
-			if (ImGui::MenuItem("Open"))
+			if (ImGui::MenuItem("Open", "Ctrl+O"))
 			{
 
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Close"))
 			{
+				SDL_Event event;
+				event.type = SDL_WINDOWEVENT_CLOSE;
+				
+				SDL_PushEvent(&event);
 				//GLFWwindow* window = glfwGetCurrentContext();
 				//glfwSetWindowShouldClose(window, true);
 			}
 
 			ImGui::EndMenu();
 		}
+
+		char buffer[32];
+		sprintf_s(buffer, sizeof(buffer), "FPS: %d", (int)ImGui::GetIO().Framerate);
+
+		float win_width = ImGui::GetWindowSize().x;
+		float text_width = ImGui::CalcTextSize(buffer).x;
+
+		ImGui::SetCursorPosX(win_width - text_width);
+		ImGui::Text(buffer);
+
 		ImGui::EndMainMenuBar();
 	}
+	ImGui::PopStyleVar(1);
 
 	/*if (ImGui::BeginMainMenuBar())
 	{
@@ -212,7 +230,9 @@ int main(int argNum, char** args)
 	int frameTime;
 
 	SDL_Event event;
-	while (true)
+
+	bool running = true;
+	while (running)
 	{
 		frameStart = SDL_GetTicks();
 
@@ -220,6 +240,9 @@ int main(int argNum, char** args)
 		{
 			if (event.type == SDL_QUIT)
 				return 0;
+
+			if (event.type == SDL_WINDOWEVENT_CLOSE)
+				running = false;
 
 			ImGui_ImplSDL2_ProcessEvent(&event);
 		}
@@ -238,10 +261,6 @@ int main(int argNum, char** args)
 		renderNintendoLogo(cartridge);
 		renderCartridge(cartridge);
 		renderGameWindow(cartridge);
-
-		ImGui::Begin("FPS Counter");
-		ImGui::Text("FPS: %d\n", (int)ImGui::GetIO().Framerate);
-		ImGui::End();
 
 		ImGui::Render();
 		ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
