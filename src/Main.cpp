@@ -181,26 +181,6 @@ void renderGameWindow(GameBoy::Cartridge* cartridge)
 
 int main(int argNum, char** args)
 {
-	GameBoy::CPU::RegisterPair BC;
-	BC = 256;
-
-	printf("BC: %04X\n", BC.GetValue());
-	printf("BC: %02X\n", BC.msb);
-	printf("BC: %02X\n", BC.lsb);
-
-	BC.msb = 10;
-	BC.lsb = 20;
-
-	printf("BC: %04X\n", BC.GetValue());
-	printf("BC: %02X\n", BC.msb);
-	printf("BC: %02X\n", BC.lsb);
-
-	BC = 65535;
-
-	printf("BC: %04X\n", BC.GetValue());
-	printf("BC: %02X\n", BC.msb);
-	printf("BC: %02X\n", BC.lsb);
-
 	std::setlocale(LC_ALL, "hu_HU.utf8");
 	GameBoy::Cartridge* cartridge = new GameBoy::Cartridge("./Pokemon - Blue Version (USA, Europe) (SGB Enhanced).gb");
 
@@ -208,29 +188,6 @@ int main(int argNum, char** args)
 	{
 		printf("Failed to initialize the SDL2 library\n");
 		return 0;
-	}
-
-	{
-		for (size_t y = 0; y < nintendoHeight; y++)
-		{
-			int idx = ((y / 2) % 2) + (y / 4) * 24;
-			for (size_t x = 0; x < nintendoWidth; x += 4, idx += 2)
-			{
-				uint8_t pi = cartridge->GetHeader().nintendoLogo[idx];
-
-				uint8_t nibble = !(y % 2) ? HIGH_NIBBLE(pi) : LOW_NIBBLE(pi);
-				//printf("%d ", pixelCount + (nintendoWidth/2 - (x / 2)) - 1);
-				//printf("%01X ", nibble);
-
-				for (short i = 0; i < 4; i++)
-				{
-					printf("%c", nibble & (1 << (3 - i)) ? '*' : ' ');
-					//printf("%01X ", nibble);
-				}
-			}
-
-			printf("\n");
-		}
 	}
 
 	window = SDL_CreateWindow("My Precious GameBoy Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, 0);
