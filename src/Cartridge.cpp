@@ -11,7 +11,7 @@ Cartridge::Cartridge(const char* filePath)
 	this->cartridge = fopen(filePath, "rb");
 	if (this->cartridge == nullptr)
 	{
-		printf("File not found: \"%s\"\n", filePath);
+		this->SetErrorMessage("File not found: \"%s\"", filePath);
 		return;
 	}
 
@@ -27,6 +27,20 @@ Cartridge::Cartridge(const char* filePath)
 Cartridge::~Cartridge()
 {
 
+}
+
+void Cartridge::SetErrorMessage(const char* msg, ...)
+{
+	char buffer[128];
+	va_list list;
+	va_start(list, msg);
+	vsprintf_s(buffer, sizeof(buffer), msg, list);
+	va_end(list);
+
+	error = true;
+	errorMessage.assign(buffer);
+
+	printf("%s\n", buffer);
 }
 
 void Cartridge::ReadHeader()
@@ -150,6 +164,7 @@ std::string Cartridge::GetROMSize(void)
 		case 0x52: return "1.1MByte (72 banks)";
 		case 0x53: return "1.2MByte (80 banks)";
 		case 0x54: return "1.5MByte (96 banks)";
+		default: return "Unknown";
 	}
 }
 

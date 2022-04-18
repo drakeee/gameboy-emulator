@@ -106,6 +106,11 @@ namespace GameBoy
 		std::string GetOldLicensee(void);
 		std::string GetNewLicensee(void);
 
+		void SetErrorMessage(const char* msg, ...);
+
+		bool error = false;
+		std::string errorMessage{ "" };
+
 	private:
 		void ReadHeader(void);
 

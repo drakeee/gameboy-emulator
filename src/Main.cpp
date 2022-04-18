@@ -34,7 +34,7 @@ void renderMenu()
 
 			}
 			ImGui::Separator();
-			if (ImGui::MenuItem("Close"))
+			if (ImGui::MenuItem("Close", "Ctrl+X"))
 			{
 				SDL_Event event;
 				event.type = SDL_WINDOWEVENT_CLOSE;
@@ -53,7 +53,7 @@ void renderMenu()
 		float win_width = ImGui::GetWindowSize().x;
 		float text_width = ImGui::CalcTextSize(buffer).x;
 
-		ImGui::SetCursorPosX(win_width - text_width);
+		ImGui::SetCursorPosX(win_width - text_width - 10.0);
 		ImGui::Text(buffer);
 
 		ImGui::EndMainMenuBar();
@@ -77,6 +77,9 @@ void renderMenu()
 
 void renderCartridge(GameBoy::Cartridge* cartridge)
 {
+	if (cartridge->error)
+		return;
+
 	ImGui::Begin("Cartridge", false, ImGuiWindowFlags_AlwaysAutoResize);
 
 	GameBoy::CartridgeHeader& header = cartridge->GetHeader();
@@ -107,6 +110,9 @@ void renderCartridge(GameBoy::Cartridge* cartridge)
 
 void renderNintendoLogo(GameBoy::Cartridge* cartridge)
 {
+	if (cartridge->error)
+		return;
+
 	if (texture == nullptr)
 		return;
 
@@ -177,6 +183,9 @@ void renderNintendoLogo(GameBoy::Cartridge* cartridge)
 
 void renderGameWindow(GameBoy::Cartridge* cartridge)
 {
+	if (cartridge->error)
+		return;
+
 	ImGuiWindowClass window_class;
 	window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_AutoHideTabBar;
 	ImGui::SetNextWindowCollapsed(false);
