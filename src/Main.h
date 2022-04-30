@@ -4,11 +4,15 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
 
-#include <Cartridge.h>
-#include <Memory.h>
-#include <CPU.h>
-#include <Graphics.h>
-#include <Emulator.h>
+#include <Core/Layer.h>
+#include <Core/Application.h>
+
+#include <Emulator/Cartridge.h>
+#include <Emulator/Memory.h>
+#include <Emulator/CPU.h>
+#include <Emulator/Graphics.h>
+#include <Emulator/Emulator.h>
 
 // TODO: Reference additional headers your program requires here.

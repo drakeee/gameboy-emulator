@@ -1,5 +1,7 @@
 #include <Main.h>
 
+#include <fstream>
+
 using namespace GameBoy;
 
 Emulator::Emulator(const std::string& filePath) :
@@ -10,10 +12,13 @@ Emulator::Emulator(const std::string& filePath) :
 
 Emulator::Emulator(const char* filePath)
 {
-	if (FILE* file = fopen(filePath, "r"))
+	std::ifstream f(filePath);
+	bool fileExists = f.good();
+	f.close();
+
+	if (!fileExists)
 	{
 		printf("Error: Unable to open path \"%s\"\n", filePath);
-		fclose(file);
 		return;
 	}
 

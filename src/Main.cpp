@@ -2,25 +2,38 @@
 
 #include <vector>
 #include <clocale>
+#include <bitset>
 
-#define SDL_MAIN_HANDLED
-#include <SDL.h>
+#define TEST true
 
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_sdl.h>
-#include <imgui/imgui_impl_sdlrenderer.h>
+int main(int argc, char** args)
+{
+#if !TEST
+	GUI::Application* app = &GUI::Application::Get();
+	app->SetTitle("My Precious GameBoy Emulator");
+	app->SetMaxFPS(60);
 
-static SDL_Window* window = nullptr;
-static SDL_Renderer* renderer = nullptr;
-static SDL_Texture* texture = nullptr;
+	app->LoadROM("./Tetris.gb");
+	app->LoadROM("./Pokemon - Blue Version (USA, Europe) (SGB Enhanced).gb");
 
-static int nintendoWidth = 48;
-static int nintendoHeight = 8;
+	while (!app->shouldClose)
+	{
+		app->OnUpdate();
+	}
+#else
+	uint8_t test = 0b11111111;
+	uint8_t d = (1 << 0);
+	bool a = CHECK_BIT(test, (1 << 0));
 
-#define LOW_NIBBLE(byte) (byte & 0x0F) // write low quartet
-#define HIGH_NIBBLE(byte) ((byte & 0xF0) >> 4) // write high quartet
+	std::bitset<8> t(test);
+	printf("%d - 0b%s\n", a, t.to_string().c_str());
 
-void renderMenu()
+#endif
+
+	return 0;
+}
+
+/*void renderMenu()
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 7));
 
@@ -59,20 +72,6 @@ void renderMenu()
 		ImGui::EndMainMenuBar();
 	}
 	ImGui::PopStyleVar(1);
-
-	/*if (ImGui::BeginMainMenuBar())
-	{
-		if (ImGui::BeginMenu("File"))
-		{
-			if (ImGui::MenuItem("New"))
-			{
-				//Do something
-			}
-			ImGui::EndMenu();
-		}
-
-		ImGui::EndMainMenuBar();
-	}*/
 }
 
 void renderCartridge(GameBoy::Cartridge* cartridge)
@@ -106,9 +105,9 @@ void renderCartridge(GameBoy::Cartridge* cartridge)
 	ImGui::Image((void*)texture, ImVec2(192, 32));
 
 	ImGui::End();
-}
+}*/
 
-void renderNintendoLogo(GameBoy::Cartridge* cartridge)
+/*void renderNintendoLogo(GameBoy::Cartridge* cartridge)
 {
 	if (cartridge->error)
 		return;
@@ -145,39 +144,8 @@ void renderNintendoLogo(GameBoy::Cartridge* cartridge)
 			//printf("%01X ", nibble);
 		}
 	}
-	/*for (size_t y = 0; y < nintendoHeight; y += 2)
-	{
-		for (size_t x = 0; x < nintendoWidth; x += 4)
-		{
-			int index = x * 4 + y * pitch;
-			uint32_t* p = (uint32_t*)&pixels[index];
-			uint8_t pi = cartridge->GetHeader().nintendoLogo[pixelCount];
-			uint8_t nibble = (y % 2) ? HIGH_NIBBLE(pi) : LOW_NIBBLE(pi);
-
-			pixelCount++;
-			//printf("A: %d\n", pitch);
-
-			for (short i = 0; i < 4; i++)
-			{
-				*p = nibble & (1 << i) ? BLACK_COLOR : WHITE_COLOR;
-				p += 48;
-			}
-		}
-	}*/
 
 	SDL_UnlockTexture(texture);
-
-	/*int scale = 10;
-	int nintendoWidthScale = (nintendoWidth * scale);
-	int nintendoHeightScale = (nintendoHeight * scale);
-
-	SDL_Rect rect;
-	rect.x = 800 / 2 - nintendoWidthScale / 2;
-	rect.y = 640 / 2 - nintendoHeightScale / 2;
-	rect.w = nintendoWidthScale;
-	rect.h = nintendoHeightScale;*/
-
-	//SDL_RenderCopyEx(renderer, texture, NULL, &rect, 0.0, NULL, SDL_RendererFlip::SDL_FLIP_NONE);
 	SDL_FreeFormat(format);
 }
 
@@ -285,7 +253,7 @@ int main(int argNum, char** args)
 	}
 
 	return 0;
-}
+}*/
 
 /*int main()
 {

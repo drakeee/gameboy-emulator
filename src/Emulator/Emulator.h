@@ -4,6 +4,11 @@
 
 namespace GameBoy
 {
+	class CPU;
+	class Memory;
+	class Cartridge;
+	class Graphics;
+
 	class Emulator
 	{
 	public:
