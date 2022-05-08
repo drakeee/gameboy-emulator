@@ -6,6 +6,11 @@
 
 #define TEST true
 
+void Test(GameBoy::CPU::RegisterPair& pair)
+{
+	printf("Test: %d\n", pair.GetValue());
+}
+
 int main(int argc, char** args)
 {
 #if !TEST
@@ -21,12 +26,16 @@ int main(int argc, char** args)
 		app->OnUpdate();
 	}
 #else
-	uint8_t test = 0b11111111;
-	uint8_t d = (1 << 0);
-	bool a = CHECK_BIT(test, (1 << 0));
+	GameBoy::CPU::RegisterPair t = 15;
+	GameBoy::CPU::RegisterPair t3(23);
 
-	std::bitset<8> t(test);
-	printf("%d - 0b%s\n", a, t.to_string().c_str());
+	Test(t++);
+	printf("After: %d\n", t);
+
+	t--;
+	printf("After: %d\n", t);
+
+	printf("After: %d\n", GameBoy::CPU::RegisterPair(26));
 
 #endif
 

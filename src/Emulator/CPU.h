@@ -4,10 +4,11 @@
 #include <ostream>
 #include <string>
 
-#define SET_BIT(a,b) (a|=b)
-#define CLEAR_BIT(a,b) (a&=~(b))
-#define TOGGLE_BIT(a,b) (a^=b)
-#define CHECK_BIT(a,b) ((a&(b))==(b))
+#define BIT(a) (1<<(a))
+#define SET_BIT(a,b) ((a)|=(b))
+#define CLEAR_BIT(a,b) ((a)&=~(b))
+#define TOGGLE_BIT(a,b) ((a)^=(b))
+#define CHECK_BIT(a,b) (((a)&(b))==(b))
 
 namespace GameBoy
 {
@@ -16,10 +17,25 @@ namespace GameBoy
 	public:
 		enum RegisterFlag : uint8_t
 		{
-			CARRY		= (1 << 4), //CY
-			HALF_CARRY	= (1 << 5), //H
-			SUBTRACTION	= (1 << 6), //N
-			ZERO		= (1 << 7) //Z
+			CARRY		= BIT(4), //CY
+			HALF_CARRY	= BIT(5), //H
+			SUBTRACTION	= BIT(6), //N
+			ZERO		= BIT(7) //Z
+		};
+
+		enum class Condition : uint8_t
+		{
+			NONE = 0,
+
+			CARRY,
+			HALF_CARRY,
+			SUBTRACTION,
+			ZERO,
+
+			NOT_CARRY,
+			NOT_HALF_CARRY,
+			NOT_SUBTRACTION,
+			NOT_ZERO
 		};
 
 		struct RegisterPair //yes, I know that I can achieve the same result using union and struct as well
@@ -64,10 +80,35 @@ namespace GameBoy
 				return ((uint16_t)this->msb << 8) | this->lsb;
 			}
 
-			RegisterPair operator+(RegisterPair& obj) {
-				RegisterPair res;
-				res = (GetValue() + obj.GetValue());
-				return res;
+			RegisterPair& operator++()
+			{
+				SetValue(GetValue() + 1);
+				return *this;
+			}
+
+			RegisterPair& operator--()
+			{
+				SetValue(GetValue() - 1);
+				return *this;
+			}
+
+			RegisterPair operator++(int)
+			{
+				RegisterPair temp = *this;
+				++*this;
+				return temp;
+			}
+
+			RegisterPair operator--(int)
+			{
+				RegisterPair temp = *this;
+				--*this;
+				return temp;
+			}
+
+			RegisterPair& operator+(RegisterPair& obj) {
+				*this = (GetValue() + obj.GetValue());
+				return *this;
 			}
 
 			RegisterPair& operator+=(RegisterPair& rhs)
@@ -169,15 +210,22 @@ namespace GameBoy
 
 		void opcode_ld(RegisterPair& pair); //read uint16_t into register pair
 		void opcode_ld(uint8_t& value); //read uint8_t into register pair's
+		void opcode_ld(uint16_t& value);
 		void opcode_ld(uint8_t& value, RegisterPair& address);
 		void opcode_ld(RegisterPair& pair, uint8_t value); //write value in the memory location specified by register pair
 		void opcode_ld(uint16_t address, uint16_t value);
+		void opcode_ld(uint8_t& one, uint8_t& two);
+		void opcode_ld_memory(RegisterPair& pair);
 
 		void opcode_inc(RegisterPair& pair);
 		void opcode_inc(uint8_t& value);
+		void opcode_inc(uint16_t& value);
+		void opcode_inc_memory(RegisterPair& pair);
 
 		void opcode_dec(RegisterPair& pair);
 		void opcode_dec(uint8_t& value);
+		void opcode_dec(uint16_t& value);
+		void opcode_dec_memory(RegisterPair& pair);
 
 		void opcode_rlc(uint8_t& value); //rotate left
 		void opcode_rrc(uint8_t& value); //rotate right
@@ -185,5 +233,13 @@ namespace GameBoy
 		void opcode_rr(uint8_t& value);
 
 		void opcode_add(RegisterPair& one, RegisterPair& two);
+		void opcode_add(RegisterPair& one, uint16_t two);
+
+		bool if_condition(Condition condition);
+		void opcode_jr(Condition condition = Condition::NONE);
+
+		void opcode_cpl(void);
+		void opcode_scf(void);
+		void opcode_ccf(void);
 	};
 }

@@ -97,7 +97,7 @@ void CartridgeInfoLayer::RenderNintendoLogo()
 			uint8_t nibble = !(y % 2) ? HIGH_NIBBLE(pi) : LOW_NIBBLE(pi);
 			for (short i = 0; i < 4; i++)
 			{
-				*p = nibble & (1 << (3 - i)) ? BLACK_COLOR : WHITE_COLOR;
+				*p = nibble & BIT(3 - i) ? BLACK_COLOR : WHITE_COLOR;
 				p += 1;
 			}
 		}
