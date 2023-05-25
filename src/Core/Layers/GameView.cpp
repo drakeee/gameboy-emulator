@@ -25,9 +25,12 @@ void GameViewLayer::OnImGuiRender()
 		for (GameBoy::Emulator* emulator : Application::Get().GetAllEmulators())
 		{
 			std::string title{ (char*)emulator->cartridge->GetHeader().title };
+			if (title.empty())
+				title = this->m_App->currentEmulator->cartridge->GetFileName();
+
 			title.append(std::string() + "##" + std::to_string(index));
 
-			bool currentEmulator = (Application::Get().currentEmulator == emulator);
+
 			if (ImGui::BeginTabItem(title.c_str()))
 			{
 				if (this->m_App->currentEmulator != emulator)

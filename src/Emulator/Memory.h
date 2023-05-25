@@ -21,5 +21,7 @@ namespace GameBoy
 		uint8_t m_Memory[0xFFFF + 1];
 		uint8_t* m_Rom = nullptr;
 		uint32_t m_RomSize = 0;
+
+		uint8_t ReadIO(uint16_t address);
 	};
 }

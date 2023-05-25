@@ -2,6 +2,9 @@
 
 #include <Main.h>
 
+#include <thread>
+#include <mutex>
+
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 
@@ -62,8 +65,17 @@ namespace GUI
 		std::vector<Layer*> m_LayerStack;
 		std::vector<GameBoy::Emulator*> m_EmulatorStack;
 
+		std::thread m_EmulatorThread;
+		std::mutex m_ThreadMutex;
+
 	private:
 		Application();
+		~Application()
+		{
+			m_EmulatorThread.join();
+		}
+
+		void ProcessEmulator();
 		
 	public:
 		Application(Application const&) = delete;

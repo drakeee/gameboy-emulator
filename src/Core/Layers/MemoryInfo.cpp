@@ -22,7 +22,7 @@ void MemoryInfoLayer::OnImGuiRender()
 		{
 			if (this->m_App->currentEmulator)
 			{
-				mem_edit_2.DrawContents(this->m_App->currentEmulator->memory->GetMemory(), 0xFFFF);
+				mem_edit_2.DrawContents(this->m_App->currentEmulator->memory->GetMemory(), 0xFFFF + 1);
 			}
 
 			ImGui::EndTabItem();
@@ -33,7 +33,7 @@ void MemoryInfoLayer::OnImGuiRender()
 			if (this->m_App->currentEmulator)
 			{
 				GameBoy::Emulator* emulator = this->m_App->currentEmulator;
-				mem_edit_2.DrawContents(emulator->memory->GetFullROM(), 0xFFFF);
+				mem_edit_2.DrawContents(emulator->memory->GetFullROM(), 0xFFFF + 1);
 			}
 
 			ImGui::EndTabItem();

@@ -4,29 +4,311 @@
 #include <clocale>
 #include <bitset>
 
-#define TEST true
+#define TEST false
 
 void Test(GameBoy::CPU::RegisterPair& pair)
 {
 	printf("Test: %d\n", pair.GetValue());
 }
 
+#define RESET_FLAGS(cpu) \
+	cpu->set_flag_value(GameBoy::CPU::CARRY, 0); \
+	cpu->set_flag_value(GameBoy::CPU::HALF_CARRY, 0); \
+	cpu->set_flag_value(GameBoy::CPU::SUBTRACTION, 0); \
+	cpu->set_flag_value(GameBoy::CPU::ZERO, 0)
+
+#define RESET_CPU(cpu) \
+	cpu->AF = 0; \
+	cpu->BC = 0; \
+	cpu->DE = 0; \
+	cpu->HL = 0
+
+#define PRINT_CPU(cpu, process, value) \
+	printf(process ": %02X - Z: %d H: %d N: %d C: %d\n", value, \
+		cpu->get_flag_value(GameBoy::CPU::ZERO), \
+		cpu->get_flag_value(GameBoy::CPU::HALF_CARRY), \
+		cpu->get_flag_value(GameBoy::CPU::SUBTRACTION), \
+		cpu->get_flag_value(GameBoy::CPU::CARRY))
+
 int main(int argc, char** args)
 {
 #if !TEST
+	
 	GUI::Application* app = &GUI::Application::Get();
 	app->SetTitle("My Precious GameBoy Emulator");
 	app->SetMaxFPS(60);
 
+	//app->LoadROM("./test-roms/cpu_instrs/individual/07-jr,jp,call,ret,rst.gb");
 	app->LoadROM("./Tetris.gb");
-	app->LoadROM("./Pokemon - Blue Version (USA, Europe) (SGB Enhanced).gb");
+	//app->LoadROM("./Pokemon - Blue Version (USA, Europe) (SGB Enhanced).gb");
 
 	while (!app->shouldClose)
 	{
 		app->OnUpdate();
 	}
+
 #else
-	GameBoy::CPU::RegisterPair t = 15;
+	GameBoy::CPU* cpu = new GameBoy::CPU(nullptr);
+
+	uint8_t value = 0b00000001;
+	SET_BIT(value, 0);
+	printf("%d\n", CHECK_BIT(value, GameBoy::CPU::RegisterFlag::CARRY));
+	printf("%d\n", CHECK_BIT(value, GameBoy::CPU::RegisterFlag::HALF_CARRY));
+	printf("%d\n", CHECK_BIT(value, GameBoy::CPU::RegisterFlag::SUBTRACTION));
+	printf("%d\n", CHECK_BIT(value, GameBoy::CPU::RegisterFlag::ZERO));
+	printf("%d\n", CHECK_BIT(value, 0));
+
+	RESET_FLAGS(cpu);
+	cpu->AF.msb = 0x3E;
+	uint8_t memoryValue = 0x40;
+	cpu->DE.lsb = 0x3E;
+
+	cpu->opcode_sub(memoryValue);
+	printf("SUB: %02Xh - %d %d %d %d\n", cpu->AF.msb,
+		cpu->get_flag_value(GameBoy::CPU::ZERO),
+		cpu->get_flag_value(GameBoy::CPU::HALF_CARRY),
+		cpu->get_flag_value(GameBoy::CPU::SUBTRACTION),
+		cpu->get_flag_value(GameBoy::CPU::CARRY));
+
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->AF.msb = 0x3C;
+	memoryValue = 0x40;
+	cpu->BC.msb = 0x2F;
+
+	cpu->opcode_cp(memoryValue);
+	printf("CP: %d %d %d %d\n",
+		cpu->get_flag_value(GameBoy::CPU::ZERO),
+		cpu->get_flag_value(GameBoy::CPU::HALF_CARRY),
+		cpu->get_flag_value(GameBoy::CPU::SUBTRACTION),
+		cpu->get_flag_value(GameBoy::CPU::CARRY));
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->AF.msb = 0xFF;
+
+	cpu->opcode_inc(cpu->AF.msb);
+	printf("INC: %02X - %d %d %d %d\n", cpu->AF.msb,
+		cpu->get_flag_value(GameBoy::CPU::ZERO),
+		cpu->get_flag_value(GameBoy::CPU::HALF_CARRY),
+		cpu->get_flag_value(GameBoy::CPU::SUBTRACTION),
+		cpu->get_flag_value(GameBoy::CPU::CARRY));
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	memoryValue = 0x50;
+
+	cpu->opcode_inc(memoryValue);
+	printf("INC: %02X - %d %d %d %d\n", memoryValue,
+		cpu->get_flag_value(GameBoy::CPU::ZERO),
+		cpu->get_flag_value(GameBoy::CPU::HALF_CARRY),
+		cpu->get_flag_value(GameBoy::CPU::SUBTRACTION),
+		cpu->get_flag_value(GameBoy::CPU::CARRY));
+
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->HL.lsb = 0x01;
+
+	cpu->opcode_dec(cpu->HL.lsb);
+	printf("DEC: %02X - %d %d %d %d\n", cpu->HL.lsb,
+		cpu->get_flag_value(GameBoy::CPU::ZERO),
+		cpu->get_flag_value(GameBoy::CPU::HALF_CARRY),
+		cpu->get_flag_value(GameBoy::CPU::SUBTRACTION),
+		cpu->get_flag_value(GameBoy::CPU::CARRY));
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	memoryValue = 0x00;
+
+	cpu->opcode_dec(memoryValue);
+	printf("DEC: %02X - %d %d %d %d\n", memoryValue,
+		cpu->get_flag_value(GameBoy::CPU::ZERO),
+		cpu->get_flag_value(GameBoy::CPU::HALF_CARRY),
+		cpu->get_flag_value(GameBoy::CPU::SUBTRACTION),
+		cpu->get_flag_value(GameBoy::CPU::CARRY));
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->AF.msb = 0x35;
+
+	cpu->opcode_cpl();
+	printf("CPL: %02X - %d %d %d %d\n", cpu->AF.msb,
+		cpu->get_flag_value(GameBoy::CPU::ZERO),
+		cpu->get_flag_value(GameBoy::CPU::HALF_CARRY),
+		cpu->get_flag_value(GameBoy::CPU::SUBTRACTION),
+		cpu->get_flag_value(GameBoy::CPU::CARRY));
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->BC.msb = 0x85;
+	memoryValue = 0;
+	cpu->set_flag_value(GameBoy::CPU::RegisterFlag::CARRY, false);
+
+	cpu->opcode_cb_rlc(memoryValue);
+	PRINT_CPU(cpu, "RLC B", memoryValue);
+
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->BC.lsb = 0x1;
+	memoryValue = 0x0;
+	cpu->set_flag_value(GameBoy::CPU::RegisterFlag::CARRY, false);
+
+	cpu->opcode_cb_rrc(cpu->BC.lsb);
+	PRINT_CPU(cpu, "RRC C", cpu->BC.lsb);
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->AF.msb = 0x85;
+	cpu->set_flag_value(GameBoy::CPU::RegisterFlag::CARRY, false);
+
+	cpu->opcode_rlc(cpu->AF.msb);
+	PRINT_CPU(cpu, "RLCA", cpu->AF.msb);
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->AF.msb = 0x3B;
+	cpu->set_flag_value(GameBoy::CPU::RegisterFlag::CARRY, false);
+
+	cpu->opcode_rrc(cpu->AF.msb);
+	PRINT_CPU(cpu, "RRCA", cpu->AF.msb);
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->AF.msb = 0x95;
+	cpu->set_flag_value(GameBoy::CPU::RegisterFlag::CARRY, true);
+
+	cpu->opcode_rl(cpu->AF.msb);
+	PRINT_CPU(cpu, "RLA", cpu->AF.msb);
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->AF.msb = 0x81;
+	cpu->set_flag_value(GameBoy::CPU::RegisterFlag::CARRY, false);
+
+	cpu->opcode_rr(cpu->AF.msb);
+	PRINT_CPU(cpu, "RRA", cpu->AF.msb);
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->HL.lsb = 0x80;
+	cpu->set_flag_value(GameBoy::CPU::RegisterFlag::CARRY, false);
+
+	cpu->opcode_cb_rl(cpu->HL.lsb);
+	PRINT_CPU(cpu, "RL L", cpu->HL.lsb);
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->AF.msb = 0x1;
+	memoryValue = 0x8A;
+	cpu->set_flag_value(GameBoy::CPU::RegisterFlag::CARRY, false);
+	cpu->opcode_cb_rr(cpu->AF.msb);
+	cpu->set_flag_value(GameBoy::CPU::RegisterFlag::CARRY, false);
+	cpu->opcode_cb_rr(memoryValue);
+	PRINT_CPU(cpu, "RR A", cpu->AF.msb);
+	PRINT_CPU(cpu, "RR (HL)", memoryValue);
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->AF.msb = 0x80;
+	cpu->HL.lsb = 0xEF;
+
+	cpu->opcode_cb_bit(7, cpu->AF.msb);
+	PRINT_CPU(cpu, "BIT 7, A", cpu->AF.msb);
+	cpu->opcode_cb_bit(4, cpu->HL.lsb);
+	PRINT_CPU(cpu, "BIT 4, L", cpu->HL.lsb);
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->DE.msb = 0x80;
+	memoryValue = 0xFF;
+
+	cpu->set_flag_value(GameBoy::CPU::RegisterFlag::CARRY, false);
+	cpu->opcode_cb_sla(cpu->DE.msb);
+	PRINT_CPU(cpu, "SLA D", cpu->DE.msb);
+
+	cpu->set_flag_value(GameBoy::CPU::RegisterFlag::CARRY, false);
+	cpu->opcode_cb_sla(memoryValue);
+	PRINT_CPU(cpu, "SLA (HL)", memoryValue);
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->AF.msb = 0x8A;
+	memoryValue = 0x01;
+
+	cpu->set_flag_value(GameBoy::CPU::RegisterFlag::CARRY, false);
+	cpu->opcode_cb_sra(cpu->AF.msb);
+	PRINT_CPU(cpu, "SRA A", cpu->AF.msb);
+
+	cpu->set_flag_value(GameBoy::CPU::RegisterFlag::CARRY, false);
+	cpu->opcode_cb_sra(memoryValue);
+	PRINT_CPU(cpu, "SRA (HL)", memoryValue);
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->AF.msb = 0x01;
+	memoryValue = 0xFF;
+
+	cpu->set_flag_value(GameBoy::CPU::RegisterFlag::CARRY, false);
+	cpu->opcode_cb_srl(cpu->AF.msb);
+	PRINT_CPU(cpu, "SRL A", cpu->AF.msb);
+
+	cpu->set_flag_value(GameBoy::CPU::RegisterFlag::CARRY, false);
+	cpu->opcode_cb_srl(memoryValue);
+	PRINT_CPU(cpu, "SRL (HL)", memoryValue);
+
+	//BC = 0x4947 - RR C - 0x19
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->BC = 0x4947;
+
+	cpu->set_flag_value(GameBoy::CPU::RegisterFlag::CARRY, true);
+	cpu->opcode_cb_rr(cpu->BC.lsb);
+	PRINT_CPU(cpu, "RR C", cpu->BC.lsb);
+
+
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->AF = 0xC740;
+	cpu->BC = 0x9247;
+
+	PRINT_CPU(cpu, "SRL B", cpu->BC.msb);
+	cpu->opcode_cb_srl(cpu->BC.msb);
+	PRINT_CPU(cpu, "SRL B", cpu->BC.msb);
+
+	printf("%04X\n", cpu->AF.GetValue());
+
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->AF = 0x0080;
+	cpu->HL = 0x8A23;
+
+	cpu->opcode_add(cpu->HL, cpu->HL);
+	PRINT_CPU(cpu, "ADD HL, HL", cpu->HL);
+
+	RESET_FLAGS(cpu);
+	RESET_CPU(cpu);
+	cpu->AF.msb = 0xE1;
+	cpu->DE.lsb = 0x0F;
+	memoryValue = 0x1E;
+	cpu->set_flag_value(GameBoy::CPU::RegisterFlag::CARRY, true);
+
+	cpu->opcode_adc(cpu->AF.msb, memoryValue);
+	PRINT_CPU(cpu, "ADC A, E", cpu->AF.msb);
+
+	printf("%04X\n", cpu->AF.GetValue());
+
+	/*printf("CPL: %02X - %d %d %d %d\n", cpu->AF.msb,
+		cpu->get_flag_value(GameBoy::CPU::ZERO),
+		cpu->get_flag_value(GameBoy::CPU::HALF_CARRY),
+		cpu->get_flag_value(GameBoy::CPU::SUBTRACTION),
+		cpu->get_flag_value(GameBoy::CPU::CARRY));*/
+
+	/*GameBoy::CPU::RegisterPair t = 15;
 	GameBoy::CPU::RegisterPair t3(23);
 
 	Test(t++);
@@ -35,7 +317,7 @@ int main(int argc, char** args)
 	t--;
 	printf("After: %d\n", t);
 
-	printf("After: %d\n", GameBoy::CPU::RegisterPair(26));
+	printf("After: %d\n", GameBoy::CPU::RegisterPair(26));*/
 
 #endif
 

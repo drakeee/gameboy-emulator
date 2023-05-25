@@ -50,11 +50,6 @@ void Cartridge::ReadHeader()
 
 	memset(&this->header, 0, sizeof(this->header));
 
-	fseek(this->cartridge, 0x014B, SEEK_SET);
-	uint8_t someShit = 0;
-	fread(&someShit, 1, sizeof(someShit), this->cartridge);
-	printf("someShit: %d\n", someShit);
-
 	fseek(this->cartridge, 0x0100, SEEK_SET);
 	fread(&this->header, 1, sizeof(this->header), this->cartridge);
 	fseek(this->cartridge, 0, SEEK_SET);
@@ -554,5 +549,5 @@ std::string Cartridge::GetNewLicensee(void)
 	if (a != licenseeCodes.end())
 		return a->second;
 
-	return "Unkown";
+	return "Unknown";
 }

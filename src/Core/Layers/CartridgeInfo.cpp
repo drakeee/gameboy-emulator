@@ -69,6 +69,9 @@ void CartridgeInfoLayer::OnKeyDown(const uint8_t* keys)
 
 void CartridgeInfoLayer::RenderNintendoLogo()
 {
+	if (Application::Get().currentEmulator == nullptr)
+		return;
+
 	GameBoy::Cartridge* cartridge = Application::Get().currentEmulator->cartridge;
 	if (cartridge->error)
 		return;

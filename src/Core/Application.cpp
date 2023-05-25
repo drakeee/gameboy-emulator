@@ -4,6 +4,7 @@
 #include <Core/Layers/GameView.h>
 #include <Core/Layers/MemoryInfo.h>
 #include <Core/Layers/RegistersInfo.h>
+#include <Core/Layers/GameTiles.h>
 
 #include <imgui/imgui_internal.h>
 
@@ -12,7 +13,6 @@
 using namespace GUI;
 Application::Application()
 {
-
 	this->m_Window = SDL_CreateWindow(this->m_TitleName.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, NULL);
 	if (this->m_Window == nullptr)
 	{
@@ -45,9 +45,29 @@ Application::Application()
 	this->PushLayer(new GameViewLayer(this));
 	this->PushLayer(new MemoryInfoLayer(this));
 	this->PushLayer(new RegistersInfoLayer(this));
+	this->PushLayer(new GameTilesLayer(this));
 
 	for (Layer* layer : this->m_LayerStack)
 		layer->OnAttach();
+
+	m_EmulatorThread = std::thread(&Application::ProcessEmulator, this);
+}
+
+void Application::ProcessEmulator()
+{
+	while (!this->shouldClose)
+	{
+		//std::lock_guard<std::mutex> lock(m_ThreadMutex);
+		
+		if (this->currentEmulator == nullptr)
+			continue;
+
+		m_ThreadMutex.lock();
+		this->currentEmulator->cpu->ProcessInstruction();
+		m_ThreadMutex.unlock();
+
+		//std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
 }
 
 #define IMGUI_COLOR(r,g,b,a) ImVec4(r/255.0f,g/255.0f, b/255.0f, a/255.0f)
@@ -81,11 +101,9 @@ bool Application::LoadROM(std::string fileName)
 
 	if (!fileExists)
 	{
-		printf("Unable to open file: \"%s\"", fileName.c_str());
+		printf("Unable to open file: \"%s\"\n", fileName.c_str());
 		return false;
 	}
-
-	printf("OpenFile2\n");
 
 	GameBoy::Emulator* newEmulator = new GameBoy::Emulator(fileName);
 
@@ -96,7 +114,7 @@ bool Application::LoadROM(std::string fileName)
 	return true;
 }
 
-int frameDelay;
+uint32_t frameDelay;
 uint32_t frameStart;
 uint32_t frameTime;
 
@@ -106,8 +124,8 @@ void Application::OnUpdate()
 	frameDelay = 1000 / this->m_FPS;
 	frameStart = SDL_GetTicks();
 
-	if (this->currentEmulator != nullptr)
-		this->currentEmulator->cpu->ProcessInstruction();
+	if(this->currentEmulator != nullptr)
+		this->currentEmulator->graphics->OnRender();
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
@@ -155,10 +173,12 @@ void Application::OnUpdate()
 		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dock_id, ImGuiDir_Left, 0.25f, NULL, &dock_id);
 		ImGuiID dock_id_left_down = ImGui::DockBuilderSplitNode(dock_id_left, ImGuiDir_Down, 0.60f, NULL, &dock_id_left);
 		ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dock_id, ImGuiDir_Right, 0.50f, NULL, &dock_id);
+		ImGuiID dock_id_far_right = ImGui::DockBuilderSplitNode(dock_id_right, ImGuiDir_Right, 0.30f, NULL, &dock_id_right);
 		ImGuiID dock_id_down = ImGui::DockBuilderSplitNode(dock_id_right, ImGuiDir_Down, 0.40f, NULL, &dock_id_right);
 
 		ImGui::DockBuilderDockWindow("Cartridge Info", dock_id_left);
 		ImGui::DockBuilderDockWindow("Games", dock_id_right);
+		ImGui::DockBuilderDockWindow("Tiles", dock_id_far_right);
 		ImGui::DockBuilderDockWindow("Memory View", dock_id_down);
 		ImGui::DockBuilderDockWindow("Registers Info", dock_id_left_down);
 
